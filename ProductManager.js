@@ -1,5 +1,4 @@
-const {promises: fs, readFile} = require ('fs');
-const { type } = require('os');
+const {promises: fs, readFile,writeFile} = require ('fs');
 
 const prodObj = {
     title: this.title,
@@ -88,6 +87,17 @@ constructor(){
             return [] //No es necesario lanzar error, simplemente se retorna vacio
         }
     }
+
+    #writefilecontent = async (...producto) => {
+        try{
+            fs.writeFile(this.#path, JSON.stringify(producto,null,'\t'),'utf-8' );
+            return 'Producto aniadido'
+        }catch (error){
+
+            this.#error = 'Ocurrio un error al escribir el archivo'
+            return this.#error
+        }
+    }
     getProducts = async () => {
         this.#products = await this.#readfilecontent()
         if(this.#products.length === 0){
@@ -103,21 +113,16 @@ constructor(){
      * @param {Product} product 
      */
     addProduct(...receivedprod){
-        
-
         if(mapearPropiedades(prodObj, receivedprod)){
-
-        console.log('Producto recibido en funcion: ',prodObj)
-    let valor = this.#validateProductEntries(prodObj)
-    if (this.#error === undefined){ 
-        const producto = {id: this.#getNextId(),...prodObj};
-        this.#products.push(producto);
-        console.log('Producto Final: ',producto)
-        
-        }else{ 
-
-            throw new Error (this.#error)
-        }
+        let valor = this.#validateProductEntries(prodObj)
+         if (this.#error === undefined){ 
+            const producto = {id: this.#getNextId(),...prodObj};
+            this.#products.push(producto);
+            console.log(producto)
+            this.#writefilecontent(this.#products).then(result => console.log(`${result}`))
+            }else{ 
+                throw new Error (this.#error)
+         }
     } else{
         let e = 'La cantidad de argumentos ingresados es incorrecta'
         return (console.log(e))
@@ -151,12 +156,10 @@ getProductById(idProduct){
             this.#error = `[${prodObj.code}]: El campo ${key} esta vacio`
         }
       }
-    /*Object.keys(product) = 
-    let found = this.#products.find(producto => producto.code === code)
+    let found = this.#products.find(producto => producto.code === prodObj.code)
+    console.log('Found: ',found)
     if (found) this.#error = `[${code}]: el identificador del producto ya existe`
     else this.#error = undefined
-    */
-    
 }
 
     DeleteProduct(idProduct){
@@ -175,7 +178,7 @@ getProductById(idProduct){
 const pmg = new ProductManager();
 pmg.getProducts().then(val => console.log(`1. El producto es: ${val}`));
 
-pmg.addProduct('producto prueba','Este es un producto de prueba',200,'','abc123',25);
+pmg.addProduct('producto prueba','Este es un producto de prueba',200,'Sin imagen','abc123',25);
 pmg.getProducts().then(val => console.log(`2. El producto es: ${val}`));
 /*let prods = productManager.getProducts();
 console.log(prods);
