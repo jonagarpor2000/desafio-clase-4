@@ -156,10 +156,16 @@ getProductById(idProduct){
             this.#error = `[${prodObj.code}]: El campo ${key} esta vacio`
         }
       }
-    let found = this.#products.find(producto => producto.code === prodObj.code)
+      let found = {}
+      this.getProducts().then(val => {
+        found.find(() => val.code === prodObj.code)
+        if (found) this.#error = `[${code}]: el identificador del producto ya existe`
+        else this.#error = undefined
+        })
+      .catch(found = 'Error al cargar productos')
+     
     console.log('Found: ',found)
-    if (found) this.#error = `[${code}]: el identificador del producto ya existe`
-    else this.#error = undefined
+    
 }
 
     DeleteProduct(idProduct){
@@ -176,7 +182,7 @@ getProductById(idProduct){
 }
 
 const pmg = new ProductManager();
-pmg.getProducts().then(val => console.log(`1. El producto es: ${val}`));
+pmg.getProducts().then(val => console.log(`1. El producto es: ${Object.entries(val)}`));
 
 pmg.addProduct('producto prueba','Este es un producto de prueba',200,'Sin imagen','abc123',25);
 pmg.getProducts().then(val => console.log(`2. El producto es: ${val}`));
