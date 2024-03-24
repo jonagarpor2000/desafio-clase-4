@@ -1,3 +1,4 @@
+
 /***
  * @typedef {Object} Product
  * @property {number} id identificador autoincremental
@@ -64,6 +65,11 @@ getProductById(idProduct){
 
     return this.#products.find((product) => product.id === idProduct) ?? 'Not Found';   
     
+}
+
+#readFilecontent = async () => {
+    const content = await fs.promises.readFile(this.path);
+    return JSON.parse(content);
 }
 
 #validateProductEntries = (title, description, price, thumbnail, code, stock) => {
