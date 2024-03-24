@@ -1,4 +1,6 @@
 
+const {promises: fs, readFile,writeFile} = require ('fs');
+
 /***
  * @typedef {Object} Product
  * @property {number} id identificador autoincremental
@@ -9,6 +11,15 @@
  * @property {string} code (código identificador)
  * @property {number} stock (número de piezas disponibles)
  */
+
+const prodObj = {
+    title: this.title,
+    description: this.description,
+    price: this.price,
+    thumbnail: this.thumbnail,
+    code: this.code,
+    stock: this.stock
+}
 
 /**
  *  @constant
@@ -22,13 +33,25 @@ class ProductManager{
      */
  #products;
 #error;
+#path;
 
  constructor(){
      this.#products = [];
      this.#error=undefined;
+     this.#path = './file/products.json'
  }
 getProducts(){
-    return this.#products;
+ this.#readfilecontent()
+  .then((prods) => {
+        this.#products = prods
+        return prods
+  })
+  .catch((emptyprod) => {
+        this.#products = emptyprod
+        return emptyprod
+
+  });
+ return this.#products;
 }
 
 addProduct(title,description,price,thumbnail,code,stock){
@@ -45,7 +68,8 @@ addProduct(title,description,price,thumbnail,code,stock){
             stock,
         }
             this.#products.push(producto);
-        
+            let result = this.#writefilecontent().then(val => val)
+
         }else{ 
 
             throw new Error (this.#error)
@@ -67,9 +91,27 @@ getProductById(idProduct){
     
 }
 
-#readFilecontent = async () => {
-    const content = await fs.promises.readFile(this.path);
-    return JSON.parse(content);
+#readfilecontent = async () => {
+    try{
+        const contenido = await fs.readFile(this.#path,'utf-8')
+        //JSON.parse(contenido)
+        return JSON.parse(contenido)
+    }catch (error){
+
+        return [] //No es necesario lanzar error, simplemente se retorna vacio
+    }
+}
+
+#writefilecontent = async () => {
+    //let prods = await this.#readfilecontent()
+    try{
+        fs.writeFile(this.#path, JSON.stringify(this.#products,null,'\t'),'utf-8' );
+        return 'Producto aniadido'
+    }catch (error){
+
+        this.#error = 'Ocurrio un error al escribir el archivo'
+        return this.#error
+    }
 }
 
 #validateProductEntries = (title, description, price, thumbnail, code, stock) => {
@@ -96,16 +138,16 @@ getProductById(idProduct){
 }
 
 const productManager = new ProductManager();
-productManager.getProducts();
-productManager.addProduct('producto prueba','Este es un producto de prueba',200,'Sin imagen','abc123',25);
-let prods = productManager.getProducts();
-console.log(prods);
-let Encontrarproducto = productManager.getProductById(1);  
+console.log(productManager.getProducts());
+
+//productManager.addProduct('producto pruebo','Este es un producto de prueba',200,'Sin imagen','abc123',25);
+
+/*let Encontrarproducto = productManager.getProductById(1);  
 console.log(Encontrarproducto);
 productManager.addProduct('product','This is a sample product',500,'.\imgprod.jpg','abc1234',1);
 Encontrarproducto = productManager.getProductById(2);
 prods = productManager.getProducts();
-console.log(prods);
+console.log(prods);*/
 
 
 
