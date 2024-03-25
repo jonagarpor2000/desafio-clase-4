@@ -12,15 +12,6 @@ const {promises: fs, readFile,writeFile} = require ('fs');
  * @property {number} stock (número de piezas disponibles)
  */
 
-const prodObj = {
-    title: this.title,
-    description: this.description,
-    price: this.price,
-    thumbnail: this.thumbnail,
-    code: this.code,
-    stock: this.stock
-}
-
 /**
  *  @constant
  *  @default
@@ -40,21 +31,21 @@ class ProductManager{
      this.#error=undefined;
      this.#path = './file/products.json'
  }
-getProducts(){
- this.#readfilecontent()
-  .then((prods) => {
-        this.#products = prods
-        return prods
-  })
-  .catch((emptyprod) => {
-        this.#products = emptyprod
-        return emptyprod
-
-  });
- return this.#products;
+getProducts = async() =>{
+ let val = await this.#readfilecontent(this.#path)
+ return val;
 }
 
-addProduct(title,description,price,thumbnail,code,stock){
+getProductById = async(id) => {
+    let contenido = await this.getProducts()
+    const product = contenido.find(producto => producto.id === id);
+    console.log(product)
+    if (product) return 'Not Found'
+    return product
+}
+
+addProduct = async(title,description,price,thumbnail,code,stock) =>{
+    this.#products = await this.getProducts()
     let valor = this.#validateProductEntries(title, description, price, thumbnail,code,stock)
     if (this.#error === undefined){ 
         /** @type {Product}*/
@@ -68,7 +59,8 @@ addProduct(title,description,price,thumbnail,code,stock){
             stock,
         }
             this.#products.push(producto);
-            let result = this.#writefilecontent().then(val => val)
+            let result = this.#writefilecontent().then(val => console.logval)
+            return result
 
         }else{ 
 
@@ -85,15 +77,15 @@ addProduct(title,description,price,thumbnail,code,stock){
     return ultimaposicion;
 }
 
-getProductById(idProduct){
-
-    return this.#products.find((product) => product.id === idProduct) ?? 'Not Found';   
+getProductById = async (idProduct) => {
+    let prods = await this.getProducts() 
+    return prods.find((product) => product.id === idProduct) ?? 'Not Found';   
     
 }
 
-#readfilecontent = async () => {
+#readfilecontent = async (path) => {
     try{
-        const contenido = await fs.readFile(this.#path,'utf-8')
+        const contenido = await fs.readFile(path,'utf-8')
         //JSON.parse(contenido)
         return JSON.parse(contenido)
     }catch (error){
@@ -103,7 +95,6 @@ getProductById(idProduct){
 }
 
 #writefilecontent = async () => {
-    //let prods = await this.#readfilecontent()
     try{
         fs.writeFile(this.#path, JSON.stringify(this.#products,null,'\t'),'utf-8' );
         return 'Producto aniadido'
@@ -124,30 +115,54 @@ getProductById(idProduct){
     }
 }
 
-    DeleteProduct(idProduct){
-        let valor = this.#products.findIndex(idProduct)
-        if (valor == -1){ 
-            
-                this.#products.push(producto);
-            
-            }else{ 
-
-                throw new Error (this.#error)
-            }
-    }
+deleteProduct = async (id)=>{
+    let content = await this.getProducts()
+    let cont_nodelete = content.filter(producto => producto.id != id)
+    //console.log('No deletees esto:',cont_nodelete)
+    await fs.promises.writeFile(this.#path, JSON.stringify(cont_nodelete, null,'\t'))
 }
 
+updateProduct = async (id,title, description, price, thumbnail,code,stock)=>{
+    let contenido = await this.getProducts()
+    let map_cont = contenido.map(producto => producto.id)
+    let indx = map_cont.indexOf(id)
+    if(indx===-1){
+        console.log('No existe tal producto');
+    }else{
+        let prod = {
+            'id': id,
+            'title': title,
+            'description': description,
+            'price': price,
+            'thumbnail': thumbnail,
+            'code': code,
+            'stock': stock
+        }
+        contenido.splice(indx,1,prod)
+        await fs.writeFile(this.#path, JSON.stringify(contenido, null,'\t'))
+    }
+    
+
+
+};
+}
+
+
+
+module.exports = {ProductManager};
+
 const productManager = new ProductManager();
-console.log(productManager.getProducts());
+async function main() {
+    const products = await productManager.getProducts();
+    console.log(products);
+    let prodbyid = await productManager.getProductById(2)
+    console.log('Prod by id: ',prodbyid);
+    //productManager.addProduct('product','This is a sample product',200,'.\imgprod.jpg','abc1234',1);
+    //productManager.deleteProduct(2)
+    await productManager.updateProduct(2,'product','This is a sample product',300,'.\imgprod.jpg','abc1234',1);
+  }
 
-//productManager.addProduct('producto pruebo','Este es un producto de prueba',200,'Sin imagen','abc123',25);
-
-/*let Encontrarproducto = productManager.getProductById(1);  
-console.log(Encontrarproducto);
-productManager.addProduct('product','This is a sample product',500,'.\imgprod.jpg','abc1234',1);
-Encontrarproducto = productManager.getProductById(2);
-prods = productManager.getProducts();
-console.log(prods);*/
+main();
 
 
 
