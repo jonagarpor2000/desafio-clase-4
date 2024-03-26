@@ -1,0 +1,22 @@
+{
+  "name": "desafio",
+  "version": "1.0.0",
+  "description": "",
+  "main": "ProductManager.js",
+  "scripts": {
+    "start": "node ProductManager.js",
+    "start:dev": "node --watch ProductManager.js",
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/jonagarpor2000/desafio-clase-4.git"
+  },
+  "keywords": [],
+  "author": "Jonathan Garcia",
+  "license": "ISC",
+  "bugs": {
+    "url": "https://github.com/jonagarpor2000/desafio-clase-4/issues"
+  },
+  "homepage": "https://github.com/jonagarpor2000/desafio-clase-4#readme"
+}
