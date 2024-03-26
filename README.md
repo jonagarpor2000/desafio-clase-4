@@ -47,6 +47,6 @@ Go to the project directory
 Use it with node
 
 ```bash
-  node --watch ProductManager.js
+  npm run start
 ```
 
