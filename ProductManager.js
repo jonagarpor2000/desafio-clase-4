@@ -119,7 +119,7 @@ deleteProduct = async (id)=>{
     let content = await this.getProducts()
     let cont_nodelete = content.filter(producto => producto.id != id)
     //console.log('No deletees esto:',cont_nodelete)
-    await fs.promises.writeFile(this.#path, JSON.stringify(cont_nodelete, null,'\t'))
+    await fs.writeFile(this.#path, JSON.stringify(cont_nodelete, null,'\t'),'utf-8')
 }
 
 updateProduct = async (id,title, description, price, thumbnail,code,stock)=>{
@@ -158,8 +158,9 @@ async function main() {
     let prodbyid = await productManager.getProductById(2)
     console.log('Prod by id: ',prodbyid);
     //productManager.addProduct('product','This is a sample product',200,'.\imgprod.jpg','abc1234',1);
-    //productManager.deleteProduct(2)
-    await productManager.updateProduct(2,'product','This is a sample product',300,'.\imgprod.jpg','abc1234',1);
+    let delprod = await productManager.deleteProduct(2)
+    console.log(delprod);
+    //await productManager.updateProduct(2,'product','This is a sample product',300,'.\imgprod.jpg','abc1234',1);
   }
 
 main();
